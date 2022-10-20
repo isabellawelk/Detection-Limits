@@ -23,7 +23,8 @@ list.files()
 
 cat <- read.csv("CATION_CALIBRATION_18Aug_Area.csv")
 an <- read.csv("ANION_CALIBRATION_18Aug_Area.csv")
-
+cat.samples<- read.csv('WOLV_Cations_18AUG22.csv')
+an.samples <- read.csv('WOLV_AN_18AUG22.csv')
 ```
 
 ## Clean data
@@ -120,4 +121,21 @@ for (n in 1:length(lm.an)){
 
 ((DL.cat))
 ((DL.an))
+```
+
+## Reprocess Data
+
+```{r}
+#cations
+for (i in 1:length(DL.cat)){
+  cat.samples[i+3][cat.samples[i+3]< DL.cat[i]] <- "<LOD"
+}
+
+#anions
+for (i in 1:length(DL.an)){
+  an.samples[i+3][an.samples[i+3]< DL.an[i]] <- "<LOD"
+}
+
+write.csv(cat.samples, file = "Processed Cation Data")
+write.csv(an.samples, file = "Processed Anion Data")
 ```

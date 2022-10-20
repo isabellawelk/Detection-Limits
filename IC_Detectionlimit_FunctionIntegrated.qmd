@@ -10,7 +10,7 @@ This code calculates detection limits for the Metrohm IC in the Bergstrom Biogeo
 
 $$Detection Limit = 3.3*sigma/m$$
 
-where $$sigma$$ is the standard deviation of the residuals (the difference in observed results from linear model)
+where sigma is the standard deviation of the residuals (the difference in observed results from linear model)
 
 and $$m$$=slope of calibration curve
 
@@ -18,12 +18,15 @@ and $$m$$=slope of calibration curve
 
 1.  Update the working directory to the folder that your export data lives in.
 2.  Ensure that your correct calibration export .csv files are associated with "cat" and "an"
+3.  Upload your run files as cat. and an.samples
 
 ```{r}
-setwd("/Users/hannahrichardson/Documents/BSU/Research/Data/Raw Data/IC data")
+wd <-setwd("/Users/hannahrichardson/Documents/BSU/Research/Data/Raw Data/IC data")
 
 cat <- read.csv("CATION_CALIBRATION_18Aug_Area.csv")
 an <- read.csv("ANION_CALIBRATION_18Aug_Area.csv")
+cat.samples<- read.csv('WOLV_Cations_18AUG22.csv')
+an.samples <- read.csv('WOLV_AN_18AUG22.csv')
 ```
 
 ## Use DL function

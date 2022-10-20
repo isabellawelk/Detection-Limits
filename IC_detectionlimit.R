@@ -63,3 +63,17 @@ IC_detectionlimit <- function (cat,an) {
   return(DL)
 }
 
+
+#reprocess data
+#cations
+for (i in 1:length(DL.cat)){
+  cat.samples[i+3][cat.samples[i+3]< DL.cat[i]] <- "<LOD"
+}
+#anions
+for (i in 1:length(DL.an)){
+  an.samples[i+3][an.samples[i+3]< DL.an[i]] <- "<LOD"
+}
+
+fileName <- paste(wd, 'Processed Anion Data')
+write.csv(cat.samples, fileName)
+write.csv(an.samples, file = wd) 
