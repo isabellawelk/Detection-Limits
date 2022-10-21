@@ -141,3 +141,62 @@ for (i in 1:length(DL.an)){
 write.csv(cat.samples, file = "Processed Cation Data")
 write.csv(an.samples, file = "Processed Anion Data")
 ```
+
+## Calculating Precision
+
+To calculate precision, I analyze duplicate samples in the run. To do so, I use the following equation
+
+$$
+ s = \sqrt{\sum(d^2)/2n}
+$$
+
+Where d is the difference between measured values of each ion in a duplicate pair and n is the number of duplicated pairs.
+
+```{r}
+library(dplyr)
+
+#cations
+
+#find duplicates and their proceeding sample
+catdupidx <- grep("DUPLICATE", cat.samples$Info.1) #index duplicates
+catdupidx2<-catdupidx-1 #index file before duplicate 
+catdupfin<-sort(c(catdupidx,catdupidx2)) #add both together and put in order
+
+#clean data to just have duplciated samples 
+catdups<-cat.samples[catdupfin,] #pull just duplicates and their proceeding values out
+catdups[catdups == "<LOD"] <- NA #remove LOD string and replace with NA
+catdups[catdups == "NA"]<- NA
+
+#find standard deviation of duplicates
+makeodd<-seq_len(nrow(catdups)) %% 2 #make an alternating 0,1 vector to pull correct differences 
+catstd<-matrix(nrow = 1, ncol=length(DL.cat))
+colnames(catstd)<-cat.names
+for (i in 1:length(DL.cat)){
+  catdiff<-abs(diff(as.numeric(catdups[,i+3])))[makeodd == 1] #difference between rows, just saving the pairs of the same samples. 
+catstd[i] <- sum(catdiff^2)/(2*(length(catdups)/2))
+}
+
+#anions
+#find duplicates and their proceeding sample
+andupidx <- grep("DUPLICATE", an.samples$Info.1) #index duplicates
+andupidx2<-andupidx-1 #index file before duplicate 
+andupfin<-sort(c(andupidx,andupidx2)) #add both together and put in order
+
+#clean data to just have duplciated samples 
+andups<-an.samples[andupfin,] #pull just duplicates and their proceeding values out
+andups[andups == "<LOD"] <- NA #remove LOD string and replace with NA
+andups[andups == "NA"]<- NA
+
+#find standard deviation of duplicates
+makeodd<-seq_len(nrow(andups)) %% 2 #make an alternating 0,1 vector to pull correct differences 
+anstd<-matrix(nrow = 1, ncol=length(DL.an))
+colnames(anstd)<-an.names
+for (i in 1:length(DL.an)){
+  andiff<-abs(diff(as.numeric(andups[,i+3])))[makeodd == 1] #difference between rows, just saving the pairs of the same samples. 
+anstd[i] <- sum(andiff^2)/(2*(length(andups)/2))
+}
+
+((catstd))
+((anstd))
+
+```
