@@ -21,19 +21,21 @@ residuals = difference in observed results from linear model
 setwd("/Users/hannahrichardson/Documents/BSU/Research/Data/Raw Data/IC data")
 list.files()
 
-cat <- read.csv("CATION_CALIBRATION_18Aug_Area.csv")
-an <- read.csv("ANION_CALIBRATION_18Aug_Area.csv")
+cat <- read.csv("CATION_CALIBRATION_10Oct.csv")
+an <- read.csv("ANION_CALIBRATION_10Oct.csv")
 cat.samples<- read.csv('WOLV_Cations_18AUG22.csv')
 an.samples <- read.csv('WOLV_AN_18AUG22.csv')
 ```
 
 ## Clean data
 
-The Metrohm automatic export file includes extraneous information about blanks. This pulls only standards 1-6 and 11 from the file. I also assign column names and separate the measured concentrations from the area measurements.
+The Metrohm automatic export file includes extraneous information about blanks. This pulls only standards 1-6 and 11 from the file. I also assign column names and separate the measured concentrations from the area measurements.c
 
 ```{r}
-cat.clean <- cat[4:10,]
-an.clean <- an[7:13,]
+library(data.table)
+
+cat.clean<-cat[cat$Sample.type %like% "Standard",]
+an.clean <- an[an$Sample.type %like% "Standard",]
 
 cat.names<-c("Na", "Ammonium", "K", "Mg", "Ca")
 an.names <-c("F", "Cl", "Nitrite", "Nitrate", "Phosphate", "Sulfate")
