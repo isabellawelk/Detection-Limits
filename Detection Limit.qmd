@@ -5,9 +5,15 @@ format: html
 editor: visual
 ---
 
-## Detection Limit Equation
+# Code Purpose:
 
-DL = 3.3 \* sigma / m
+This code calculates detection limits, reprocesses your data to replace measured values below detection limits as \<LOD values, and calculates precision for each ion based on your duplicates.
+
+# Detection Limit
+
+### Equation
+
+$$ DL = 3.3 * \sigma / m$$
 
 sigma = std deviation of the residuals
 
@@ -15,7 +21,7 @@ m = slope of calibration curve
 
 residuals = difference in observed results from linear model
 
-## Load Data
+### Load Data
 
 ```{r}
 setwd("/Users/hannahrichardson/Documents/BSU/Research/Data/Raw Data/IC data")
@@ -27,7 +33,7 @@ cat.samples<- read.csv('WOLV_Cations_18AUG22.csv')
 an.samples <- read.csv('WOLV_AN_18AUG22.csv')
 ```
 
-## Clean data
+### Clean data
 
 The Metrohm automatic export file includes extraneous information about blanks. This pulls only standards 1-6 and 11 from the file. I also assign column names and separate the measured concentrations from the area measurements.c
 
@@ -51,7 +57,7 @@ colnames(an.conc)<- an.names
 colnames(an.area)<- an.names
 ```
 
-## Fit regression line
+### Fit regression line
 
 This fits a regression line to the calibration data, generating a list for each ion of regression statistics.
 
@@ -70,7 +76,7 @@ for (i in 1:6){
 
 ```
 
-## Calculate standard deviation of residuals and extract slope
+###Calculate standard deviation of residuals and extract slope
 
 The residuals are the difference between the observed value of the response (area under the curve) and the area value predicted from the regression line. The standard deviation of the residuals is used to calculate DL.
 
@@ -100,7 +106,7 @@ for (n in 1:length(lm.an)){
 }
 ```
 
-## Calculate detection limit
+### Calculate detection limit
 
 This evaluates the equation:
 
@@ -125,7 +131,9 @@ for (n in 1:length(lm.an)){
 ((DL.an))
 ```
 
-## Reprocess Data
+# Reprocess Data
+
+Reprocessed data will be under "files" labeled as "Processed Anion Data" and "Processed Cation Data"
 
 ```{r}
 #cations
@@ -142,7 +150,7 @@ write.csv(cat.samples, file = "Processed Cation Data")
 write.csv(an.samples, file = "Processed Anion Data")
 ```
 
-## Calculating Precision
+# Calculating Precision
 
 To calculate precision, I analyze duplicate samples in the run. To do so, I use the following equation
 
