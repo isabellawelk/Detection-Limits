@@ -1,0 +1,37 @@
+---
+title: "AA500_DetectionLimit_functionintegrated"
+format: html
+editor: visual
+---
+
+## Purpose
+
+This code calculates detection limits for the AA500 Nutrient Analyzer in the Bergstrom Biogeochem Lab using the following equation:
+
+$$Detection Limit = 3.3*sigma/m$$
+
+where sigma is the standard deviation of the residuals (the difference in observed results from linear model)
+
+and m=slope of calibration curve
+
+## Load Data
+
+1.  Update the working directory to the folder that your export data lives in.
+2.  Ensure that your correct calibration export .csv files are associated with "cat" and "an"
+
+```{r}
+setwd("/Users/hannahrichardson/Documents/BSU/Research/Data/Raw Data/Nutrient Analyzer")
+list.files()
+
+data <- read.csv("nox_silcate_wolv_10_Oct_22.csv")
+
+numchan<- 2 #this is the number of channels run, make sure it matches your run
+```
+
+## Use DL function
+
+All results are in mg/L
+
+```{r}
+AA500_detectionlimit(data,numchan)
+```
