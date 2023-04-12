@@ -84,6 +84,8 @@ if (numchan == 2) {
 } else {
   colnames(DL)<-c(data[8,5],data[8,9],data[8,13])
 }
+
+DL
 ```
 
 ## Error
@@ -111,5 +113,7 @@ for (i in 1:length(DL)){
   diff<-na.omit(diff) #omit na's 
 std[i] <- sum(diff^2)/(2*(length(dupsclean)/2))
 }
-std 
+error<-std
+
+error
 ```
