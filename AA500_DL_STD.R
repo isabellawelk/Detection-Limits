@@ -12,17 +12,17 @@ rm(list=ls()) #clear previous variables
 
 #### INPUT information to set up script and load data: ####
 
-setwd("C:/Users/bryn_/OneDrive/Documents/5108 LAB/Data_analysis_detect_limit/") #copy file path
+setwd("C:/Users/bryn_/OneDrive/Documents/5108 LAB/Data_analysis_detect_limit/DL_New/") #copy file path
 list.files()
-data <- read.csv("Run data/MDV_NOx_NH3_PO4_9Feb24_Corr.Vals.csv", row.names=NULL) #file name for input data (must be .csv format)
+data <- read.csv("Run data/DCEW_SiO2_822-1115.csv", row.names=NULL) #file name for input data (must be .csv format)
 
-numchan<- 3                #Still using for column labeling
-NOx<-c(1,18)          #INPUT sample number range for NOx, PO4, & NH3
-PO4<-c(19,33)
-NH3<-c(1,18)
-SiO2<-c()
+numchan<- 1                #Still using for column labeling
+NOx<-c()          #INPUT sample number range for NOx, PO4, & NH3
+PO4<-c()
+NH3<-c()
+SiO2<-c(822,1115)
 
-samp_range <- c(1,33)  #INPUT FIRST AND LAST SAMPLE NUMBERS
+samp_range <- c(822,1115)  #INPUT FIRST AND LAST SAMPLE NUMBERS
 
 #####load necessary packages
 
@@ -104,7 +104,7 @@ if (length(NH3) > 0) {
   selected_data_NH3 <- data[which(data$ANAL == NH3[1]) : which(data$ANAL == NH3[2]),c(1,which(data[8,] == "NH3"))]
 }
 if (length(SiO2) > 0) {
-  selected_data_SiO2 <- data[which(data$ANAL == SiO2[1]) : which(data$ANAL == NH3[2]),c(1,which(data[8,] == "SiO2"))]
+  selected_data_SiO2 <- data[which(data$ANAL == SiO2[1]) : which(data$ANAL == SiO2[2]),c(1,which(data[8,] == "SiO2"))]
 }
 
 
@@ -168,10 +168,15 @@ if (length(PO4) > 0) {
 if (length(NH3) > 0) {
   full_output <- merge(full_output, std_NH3, by = 'ANAL', all.x = TRUE)
 }
+if (length(SiO2) > 0) {
+  full_output <- merge(full_output, std_SiO2, by = 'ANAL', all.x = TRUE)
+}
 
-#colnames(full_output) <- c("Sample","NOx Conc.","NOx STD","NOx DL","PO4 Conc.","PO4 STD","PO4 DL",
-#                           "NH3 Conc.","NH3 STD","NH3 DL")
+colnames(full_output) <- c("Sample","NOx Conc.","NOx STD","NOx DL","PO4 Conc.","PO4 STD","PO4 DL",
+                           "NH3 Conc.","NH3 STD","NH3 DL")
 ######For de-bugging  
 #selected_data <- selected_data_NOx 
 #col_label <- "Nitrate"
 
+#colnames(full_output) <- c("Sample", "SiO2 Conc", "SiO2 STD", "SiO2 DL")
+#write.csv(full_output,"C:/Users/bryn_/OneDrive/Documents/5108 LAB/Data_analysis_detect_limit/DL_New/Outputs/FILE NAME.csv")
