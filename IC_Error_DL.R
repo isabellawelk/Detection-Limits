@@ -49,7 +49,7 @@ an.clean$Info.1 <- gsub(" duplicate", "", as.character(an.clean$Info.1))
 
 ##an.clean <- an.clean[ , -which(names(an.clean) %in% c("Ident", "Method.name"))]  # removed columns that we don't want (isabella added)
 
-colnames(an.clean) <- c("Determination.start","Sample.type","Info.1","Fluoride Concentration","Chloride Concentration","Nitrite Concentration","Nitrate Concentration","Phosphate Concentration","Sulfate Concentration")
+#colnames(an.clean) <- c("Determination.start","Sample.type","Info.1","Fluoride Concentration","Chloride Concentration","Nitrite Concentration","Nitrate Concentration","Phosphate Concentration","Sulfate Concentration")
 
 cat.clean$Info.1 <- gsub("-duplicate", "", as.character(cat.clean$Info.1))
 cat.clean$Info.1 <- gsub("-Duplicate", "", as.character(cat.clean$Info.1))
@@ -59,7 +59,7 @@ cat.clean$Info.1 <- gsub(" duplicate", "", as.character(cat.clean$Info.1))
 
 ##cat.clean <- cat.clean[ , -which(names(cat.clean) %in% c("Ident", "Method.name"))]
 
-colnames(cat.clean) <- c("Detemination.Start","Sample.type","Info.1","Lithium Concentration","Sodium Concentration","Ammonium Concentration",
+#colnames(cat.clean) <- c("Detemination.Start","Sample.type","Info.1","Lithium Concentration","Sodium Concentration","Ammonium Concentration",
                          "Potassium Concentration","Magnesium Concentration","Calcium Concentration")
 
 #standard deviation workflow:
