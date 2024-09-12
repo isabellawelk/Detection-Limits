@@ -15,7 +15,7 @@
 rm(list = ls()) 
 
 ##import data
-setwd("C:/Users/bryn_/OneDrive/Documents/5108 LAB/Data_analysis_detect_limit/Detection-Limits")
+setwd("/Users/isabellawelk/Documents/GitHub/Detection-Limits")
 list.files()
 
 #load libraries
@@ -23,11 +23,11 @@ library(dplyr)
 library(reshape)
 
 #import needed .csv files
-anions <- read.csv("Run data/DCEW001-589_Anions.csv")   #run file
-cations <- read.csv("Run data/DCEW001-589_Cations.csv")   #run file
+anions <- read.csv("RunData/Samples/FT_Test_30-31July24_Anions.csv")   #run file
+cations <- read.csv("RunData/Samples/FT_Test_31July24_Cations.csv")   #run file
 
-an_calibration <- read.csv("Run data/7Jun2024_Anion_Calibration.csv")     #import calibration used for current anion samples
-cat_calibration <- read.csv("Run data/29May2024_Cation_Calibration.csv")  #import calibration used for current cation samples
+an_calibration <- read.csv("RunData/Calibrations/FT_Test_30-31July24_Anion_Calibration.csv")     #import calibration used for current anion samples
+cat_calibration <- read.csv("RunData/Calibrations/FT_Test_31July24_Cation_Calibration.csv")  #import calibration used for current cation samples
 
 #specify names
 an.names <- c("Fluoride","Chloride","Nitrite","Nitrate","Phosphate","Sulfate")
@@ -44,13 +44,22 @@ cat.clean <- replace(cat.clean, cat.clean == 'invalid', NA)
 an.clean$Info.1 <- gsub("-duplicate", "", as.character(an.clean$Info.1))
 an.clean$Info.1 <- gsub("-Duplicate", "", as.character(an.clean$Info.1))
 an.clean$Info.1 <- gsub("-DUPLICATE", "", as.character(an.clean$Info.1))
-colnames(an.clean) <- c("Sample.type","Info.1","Fluoride Concentration","Chloride Concentration","Nitrite Concentration",
-                        "Nitrate Concentration","Phosphate Concentration","Sulfate Concentration")
+an.clean$Info.1 <- gsub(" Duplicate", "", as.character(an.clean$Info.1))
+an.clean$Info.1 <- gsub(" duplicate", "", as.character(an.clean$Info.1))
 
-cat.clean$Info.1 <- gsub("-duplicate", "", as.character(an.clean$Info.1))
-cat.clean$Info.1 <- gsub("-Duplicate", "", as.character(an.clean$Info.1))
-cat.clean$Info.1 <- gsub("-DUPLICATE", "", as.character(an.clean$Info.1))
-colnames(cat.clean) <- c("Sample.type","Info.1","Lithium Concentration","Sodium Concentration","Ammonium Concentration",
+##an.clean <- an.clean[ , -which(names(an.clean) %in% c("Ident", "Method.name"))]  # removed columns that we don't want (isabella added)
+
+colnames(an.clean) <- c("Determination.start","Sample.type","Info.1","Fluoride Concentration","Chloride Concentration","Nitrite Concentration","Nitrate Concentration","Phosphate Concentration","Sulfate Concentration")
+
+cat.clean$Info.1 <- gsub("-duplicate", "", as.character(cat.clean$Info.1))
+cat.clean$Info.1 <- gsub("-Duplicate", "", as.character(cat.clean$Info.1))
+cat.clean$Info.1 <- gsub("-DUPLICATE", "", as.character(cat.clean$Info.1))
+cat.clean$Info.1 <- gsub(" Duplicate", "", as.character(cat.clean$Info.1))
+cat.clean$Info.1 <- gsub(" duplicate", "", as.character(cat.clean$Info.1))
+
+##cat.clean <- cat.clean[ , -which(names(cat.clean) %in% c("Ident", "Method.name"))]
+
+colnames(cat.clean) <- c("Detemination.Start","Sample.type","Info.1","Lithium Concentration","Sodium Concentration","Ammonium Concentration",
                          "Potassium Concentration","Magnesium Concentration","Calcium Concentration")
 
 #standard deviation workflow:
@@ -193,6 +202,6 @@ cation_processed_output <- cation_processed_output[, c(columns.to.move, setdiff(
 
 #example export lines:
 
-#write.csv(anion_processed_output,"C:/Users/bryn_/OneDrive/Documents/5108 LAB/Data_analysis_detect_limit/DL_New/Outputs/FILE NAME.csv")
+write.csv(anion_processed_output,"~/Documents/GitHub/Detection-Limits/RunData/Outputs/30-31July24_Anions.csv")
 
-#write.csv(cation_processed_output,"C:/Users/bryn_/OneDrive/Documents/5108 LAB/Data_analysis_detect_limit/DL_New/Outputs/FILE NAME.csv")
+write.csv(cation_processed_output,"RunData/Outputs/31July24_Cations.csv")
