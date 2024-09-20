@@ -14,8 +14,8 @@
 ##clear workspace
 rm(list = ls()) 
 
-##import data
-setwd("/Users/isabellawelk/Documents/GitHub/Detection-Limits")
+##set working directory
+setwd("C:/Users/bryn_/OneDrive/Documents/5108 LAB/Data_analysis_detect_limit/IC_Detection-Limits")
 list.files()
 
 #load libraries
@@ -23,11 +23,11 @@ library(dplyr)
 library(reshape)
 
 #import needed .csv files
-anions <- read.csv("RunData/Samples/FT_Test_30-31July24_Anions.csv")   #run file
-cations <- read.csv("RunData/Samples/FT_Test_31July24_Cations.csv")   #run file
+anions <- read.csv("Run data/DCEW001-589_Anions.csv")   #anion run file
+cations <- read.csv("Run data/DCEW001-589_Cations.csv")   #cation run file
 
-an_calibration <- read.csv("RunData/Calibrations/FT_Test_30-31July24_Anion_Calibration.csv")     #import calibration used for current anion samples
-cat_calibration <- read.csv("RunData/Calibrations/FT_Test_31July24_Cation_Calibration.csv")  #import calibration used for current cation samples
+an_calibration <- read.csv("Run data/7Jun2024_Anion_Calibration.csv")     #import calibration used for current anion samples
+cat_calibration <- read.csv("Run data/29May2024_Cation_Calibration.csv")  #import calibration used for current cation samples
 
 #specify names
 an.names <- c("Fluoride","Chloride","Nitrite","Nitrate","Phosphate","Sulfate")
@@ -44,23 +44,18 @@ cat.clean <- replace(cat.clean, cat.clean == 'invalid', NA)
 an.clean$Info.1 <- gsub("-duplicate", "", as.character(an.clean$Info.1))
 an.clean$Info.1 <- gsub("-Duplicate", "", as.character(an.clean$Info.1))
 an.clean$Info.1 <- gsub("-DUPLICATE", "", as.character(an.clean$Info.1))
-an.clean$Info.1 <- gsub(" Duplicate", "", as.character(an.clean$Info.1))
-an.clean$Info.1 <- gsub(" duplicate", "", as.character(an.clean$Info.1))
+colnames(an.clean) <- c("Sample.type","Info.1","Fluoride Concentration","Chloride Concentration","Nitrite Concentration",
+                        "Nitrate Concentration","Phosphate Concentration","Sulfate Concentration")
 
-##an.clean <- an.clean[ , -which(names(an.clean) %in% c("Ident", "Method.name"))]  # removed columns that we don't want (isabella added)
-
-#colnames(an.clean) <- c("Determination.start","Sample.type","Info.1","Fluoride Concentration","Chloride Concentration","Nitrite Concentration","Nitrate Concentration","Phosphate Concentration","Sulfate Concentration")
-
-cat.clean$Info.1 <- gsub("-duplicate", "", as.character(cat.clean$Info.1))
-cat.clean$Info.1 <- gsub("-Duplicate", "", as.character(cat.clean$Info.1))
-cat.clean$Info.1 <- gsub("-DUPLICATE", "", as.character(cat.clean$Info.1))
-cat.clean$Info.1 <- gsub(" Duplicate", "", as.character(cat.clean$Info.1))
-cat.clean$Info.1 <- gsub(" duplicate", "", as.character(cat.clean$Info.1))
-
-##cat.clean <- cat.clean[ , -which(names(cat.clean) %in% c("Ident", "Method.name"))]
-
-#colnames(cat.clean) <- c("Detemination.Start","Sample.type","Info.1","Lithium Concentration","Sodium Concentration","Ammonium Concentration",
+cat.clean$Info.1 <- gsub("-duplicate", "", as.character(an.clean$Info.1))
+cat.clean$Info.1 <- gsub("-Duplicate", "", as.character(an.clean$Info.1))
+cat.clean$Info.1 <- gsub("-DUPLICATE", "", as.character(an.clean$Info.1))
+colnames(cat.clean) <- c("Sample.type","Info.1","Lithium Concentration","Sodium Concentration","Ammonium Concentration",
                          "Potassium Concentration","Magnesium Concentration","Calcium Concentration")
+
+#create cation and anion concentration variables
+an.conc <- subset(an.clean, select = -Sample.type)
+cat.conc <- subset(cat.clean, select = -Sample.type)
 
 #standard deviation workflow:
 
@@ -92,8 +87,8 @@ cat.std <- replace(cat.std, cat.std == "NaN", NA)
 colnames(cat.std) <- cat.names
 
 #create std columns
-an.std.rep <- matrix(rep(an.std, each = nrow(an.clean)), ncol = 6)        #repeats the an.std values vertically for the length of an.clean
-cat.std.rep <- matrix(rep(cat.std, each = nrow(cat.clean)), ncol = 6)        #repeats the cat.std values vertically for the length of cat.clean
+an.std.rep <- matrix(rep(an.std, each = nrow(an.conc)), ncol = 6)        #repeats the an.std values vertically for the length of an.clean
+cat.std.rep <- matrix(rep(cat.std, each = nrow(cat.conc)), ncol = 6)        #repeats the cat.std values vertically for the length of cat.clean
 
 #name them
 colnames(an.std.rep) <- c("Fluoride STD","Chloride STD","Nitrite STD","Nitrate STD","Phosphate STD","Sulfate STD")
@@ -103,28 +98,28 @@ colnames(cat.std.rep) <- c("Lithium STD","Sodium STD","Ammonium STD","Potassium 
 
 #split the calibration data into concentration and area
 #for anions
-an.conc <- select(an_calibration, Anions.Fluoride.Concentration, Anions.Chloride.Concentration, Anions.Nitrite.as.N.Concentration,
-                  Anions.Nitrate.as.N.Concentration, Anions.Phosphate.as.P.Concentration, Anions.Sulfate.Concentration)
-an.area <- select(an_calibration, Anions.Fluoride.Area, Anions.Chloride.Area, Anions.Nitrite.as.N.Area,
-                  Anions.Nitrate.as.N.Area, Anions.Phosphate.as.P.Area, Anions.Sulfate.Area)
+an.cal.conc <- select(an_calibration, Anions.Fluoride.Concentration, Anions.Chloride.Concentration, Anions.Nitrite.as.N.Concentration,
+                      Anions.Nitrate.as.N.Concentration, Anions.Phosphate.as.P.Concentration, Anions.Sulfate.Concentration)
+an.cal.area <- select(an_calibration, Anions.Fluoride.Area, Anions.Chloride.Area, Anions.Nitrite.as.N.Area,
+                      Anions.Nitrate.as.N.Area, Anions.Phosphate.as.P.Area, Anions.Sulfate.Area)
 
 #for cations
-cat.conc <- select(cat_calibration, Cations.Lithium.Concentration, Cations.Sodium.Concentration, Cations.Ammonium.as.N.Concentration,
-                  Cations.Potassium.Concentration, Cations.Magnesium.Concentration, Cations.Calcium.Area)
-cat.area <- select(cat_calibration, Cations.Lithium.Area, Cations.Sodium.Area, Cations.Ammonium.as.N.Area,
-                  Cations.Potassium.Area, Cations.Magnesium.Area, Cations.Calcium.Area)
+cat.cal.conc <- select(cat_calibration, Cations.Lithium.Concentration, Cations.Sodium.Concentration, Cations.Ammonium.as.N.Concentration,
+                       Cations.Potassium.Concentration, Cations.Magnesium.Concentration, Cations.Calcium.Area)
+cat.cal.area <- select(cat_calibration, Cations.Lithium.Area, Cations.Sodium.Area, Cations.Ammonium.as.N.Area,
+                       Cations.Potassium.Area, Cations.Magnesium.Area, Cations.Calcium.Area)
 
 #create a linear model
 #for anions
 lm.an <- list()
 for (i in 1:6){
-  lm.an[[i]] <- lm(an.area[,i] ~ an.conc[,i])     #creates a linear model where area is the response/dependent variable, and concentration is independent
-}
+  lm.an[[i]] <- lm(an.cal.area[,i] ~ an.cal.conc[,i])     #creates a linear model where area is the response/dependent variable,
+}                                                   #and concentration is independent
 
 #for cations
 lm.cat <- list()
 for (i in 1:6){
-  lm.cat[[i]] <- lm(cat.area[,i] ~ cat.conc[,i])
+  lm.cat[[i]] <- lm(cat.cal.area[,i] ~ cat.cal.conc[,i])
 }
 
 #pull residuals and coefficients from the linear model
@@ -155,53 +150,53 @@ for (j in 1:6){
 DL.an <- matrix(nrow = 1, ncol = length(lm.an))  #empty matrix
 colnames(DL.an) <- an.names
 for (k in 1:length(lm.an)){
-  DL.an[,k] = 3.3 * sd.resid.cat[k]/slope.an[k]  #calculating DL using slope and sd of residuals
+  DL.an[,k] <- 3.3 * sd.resid.an[k]/slope.an[k]  #calculating DL using slope and sd of residuals
 }
 
 #for cations
 DL.cat <- matrix(nrow = 1, ncol = length(lm.cat))
 colnames(DL.cat) <- cat.names
 for (k in 1:length(lm.cat)){
-  DL.cat[,k] = 3.3 * sd.resid.cat[k]/slope.cat[k]
+  DL.cat[,k] <- 3.3 * sd.resid.cat[k]/slope.cat[k]
 }
 
 #reprocess data
 #for anions
 for (y in 1:length(DL.an)){
-  an.clean[i+2][an.clean[i+2] < DL.an[i]] <- NA    #inserts NA if any samples are below DL
+  an.clean[y+2][an.clean[y+2] < DL.an[y]] <- NA    #inserts NA if any samples are below DL
 }
-  
+
 #for cations
 for (x in 1:length(DL.cat))
-  cat.clean[i+2][cat.clean[i+2] < DL.cat[i]] <- NA    #inserts NA if any samples are below DL
+  cat.clean[x+2][cat.clean[x+2] < DL.cat[x]] <- NA    #inserts NA if any samples are below DL
 
 #repeating DL columns for output
 #for anions
-DL.an.rep <- matrix(rep(DL.an, each = nrow(an.clean)), ncol = 6)
+DL.an.rep <- matrix(rep(DL.an, each = nrow(an.conc)), ncol = 6)
 colnames(DL.an.rep) <- c("Fluoride DL","Chloride DL","Nitrite DL","Nitrate DL","Phosphate DL","Sulfate DL")
 
 #for cations
-DL.cat.rep <- matrix(rep(DL.cat, each = nrow(cat.clean)), ncol = 6)
+DL.cat.rep <- matrix(rep(DL.cat, each = nrow(cat.conc)), ncol = 6)
 colnames(DL.cat.rep) <- c("Lithium DL","Sodium DL","Ammonium DL","Potassium DL","Magnesium DL","Calcium DL")
 
 #full outputs
 #anions
-anion_processed_output <- cbind(an.clean, an.std.rep, DL.an.rep)
+anion_processed_output <- cbind(an.conc, an.std.rep, DL.an.rep)
 an.sorted.colnames <- sort(names(anion_processed_output))
 anion_processed_output <- anion_processed_output[,an.sorted.colnames]
-columns.to.move <- c("Sample.type", "Info.1")
+columns.to.move <- c("Info.1")
 anion_processed_output <- anion_processed_output[, c(columns.to.move, setdiff(names(anion_processed_output), columns.to.move))]
 
 #cations
-cation_processed_output <- cbind(cat.clean, cat.std.rep, DL.cat.rep)
+cation_processed_output <- cbind(cat.conc, cat.std.rep, DL.cat.rep)
 cat.sorted.colnames <- sort(names(cation_processed_output))
 cation_processed_output <- cation_processed_output[,cat.sorted.colnames]
-columns.to.move <- c("Sample.type", "Info.1")
+columns.to.move <- c("Info.1")
 cation_processed_output <- cation_processed_output[, c(columns.to.move, setdiff(names(cation_processed_output), columns.to.move))]
 
 
 #example export lines:
 
-write.csv(anion_processed_output,"~/Documents/GitHub/Detection-Limits/RunData/Outputs/30-31July24_Anions.csv")
+#write.csv(anion_processed_output,"C:/Users/bryn_/OneDrive/Documents/5108 LAB/Data_analysis_detect_limit/DL_New/Outputs/FILE NAME.csv")
 
-write.csv(cation_processed_output,"RunData/Outputs/31July24_Cations.csv")
+#write.csv(cation_processed_output,"C:/Users/bryn_/OneDrive/Documents/5108 LAB/Data_analysis_detect_limit/DL_New/Outputs/FILE NAME.csv")
