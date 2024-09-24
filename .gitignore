@@ -1,3 +1,10 @@
+ICRunData/
+NARunData/
+.DS_Store
+RunData/
+Detection-Limits.Rproj
+
+
 .Rproj.user
 .Rhistory
 .RData
