@@ -1,8 +1,12 @@
+
 ICRunData/
 NARunData/
 .DS_Store
 RunData/
 Detection-Limits.Rproj
+AA500_Outputs/
+AA500_Run data/
+IC_Run data/
 
 
 .Rproj.user
