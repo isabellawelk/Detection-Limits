@@ -1,0 +1,210 @@
+---
+title: "IC Detection Limit"
+author: "Hannah Richardson"
+format: html
+editor: visual
+---
+
+# Code Purpose:
+
+This code calculates detection limits, reprocesses your data to replace measured values below detection limits as \<LOD values, and calculates precision for each ion based on your duplicates.
+
+# Detection Limit
+
+### Equation
+
+$$ DL = 3.3 * \sigma / m$$
+
+sigma = std deviation of the residuals
+
+m = slope of calibration curve
+
+residuals = difference in observed results from linear model
+
+### Load Data
+
+```{r}
+setwd("/Users/hannahrichardson/Documents/BSU/Research/Data/Raw Data/IC data")
+list.files()
+
+cat <- read.csv("CATION_CALIBRATION_10Oct.csv")
+an <- read.csv("ANION_CALIBRATION_10Oct.csv")
+cat.samples<- read.csv('WOLV_Cations_18AUG22.csv')
+an.samples <- read.csv('WOLV_AN_18AUG22.csv')
+```
+
+### Clean data
+
+The Metrohm automatic export file includes extraneous information about blanks. This pulls only standards 1-6 and 11 from the file. I also assign column names and separate the measured concentrations from the area measurements.c
+
+```{r}
+library(data.table)
+
+cat.clean<-cat[cat$Sample.type %like% "Standard",]
+an.clean <- an[an$Sample.type %like% "Standard",]
+
+cat.names<-c("Na", "Ammonium", "K", "Mg", "Ca")
+an.names <-c("F", "Cl", "Nitrite", "Nitrate", "Phosphate", "Sulfate")
+
+cat.conc <- cat.clean[,3:7] #seperate the x and y data
+cat.area<-cat.clean[,8:12]
+colnames(cat.conc)<- cat.names
+colnames(cat.area)<- cat.names
+
+an.conc <-an.clean[,3:8]
+an.area<-an.clean[,9:14]
+colnames(an.conc)<- an.names
+colnames(an.area)<- an.names
+```
+
+### Fit regression line
+
+This fits a regression line to the calibration data, generating a list for each ion of regression statistics.
+
+```{r}
+#cations
+lm.cat <-list() #allocate list
+for (i in 1:5){
+  lm.cat[[i]] <- lm(cat.area[ ,i] ~ cat.conc[ ,i])
+}
+
+#anions
+lm.an <-list() #allocate list
+for (i in 1:6){
+  lm.an[[i]] <- lm(an.area[ ,i] ~ an.conc[ ,i])
+}
+
+```
+
+###Calculate standard deviation of residuals and extract slope
+
+The residuals are the difference between the observed value of the response (area under the curve) and the area value predicted from the regression line. The standard deviation of the residuals is used to calculate DL.
+
+The slope of the line is also used in the DL equation and is extracted from the regression model here.
+
+```{r}
+#cations
+sd.resid.cat <- matrix(nrow = 1, ncol=length(lm.cat))
+slope.cat<-matrix(nrow = 1, ncol=length(lm.cat))
+colnames(sd.resid.cat)<-cat.names
+colnames(slope.cat)<-cat.names
+
+for (n in 1:length(lm.cat)){
+  sd.resid.cat[,n]<-sd(lm.cat[[n]][["residuals"]])
+  slope.cat[,n]<-lm.cat[[n]][["coefficients"]][["cat.conc[, i]"]]
+}
+
+#anions
+sd.resid.an <- matrix(nrow = 1, ncol=length(lm.an))
+slope.an<-matrix(nrow = 1, ncol=length(lm.an))
+colnames(sd.resid.an)<-an.names
+colnames(slope.an)<-an.names
+
+for (n in 1:length(lm.an)){
+  sd.resid.an[,n]<-sd(lm.an[[n]][["residuals"]])
+  slope.an[,n]<-lm.an[[n]][["coefficients"]][["an.conc[, i]"]]
+}
+```
+
+### Calculate detection limit
+
+This evaluates the equation:
+
+DL = 3.3 \* sigma / m
+
+```{r}
+#Cations
+DL.cat<-matrix(nrow = 1, ncol=length(lm.cat))
+colnames(DL.cat)<-cat.names
+for (n in 1:length(lm.cat)){
+  DL.cat[,n]=3.3*sd.resid.cat[n]/slope.cat[n]
+}
+
+#Anions
+DL.an<-matrix(nrow = 1, ncol=length(lm.an))
+colnames(DL.an)<-an.names
+for (n in 1:length(lm.an)){
+  DL.an[,n]=3.3*sd.resid.an[n]/slope.an[n]
+}
+
+((DL.cat))
+((DL.an))
+```
+
+# Reprocess Data
+
+Reprocessed data will be under "files" labeled as "Processed Anion Data" and "Processed Cation Data"
+
+```{r}
+#cations
+for (i in 1:length(DL.cat)){
+  cat.samples[i+3][cat.samples[i+3]< DL.cat[i]] <- "<LOD"
+}
+
+#anions
+for (i in 1:length(DL.an)){
+  an.samples[i+3][an.samples[i+3]< DL.an[i]] <- "<LOD"
+}
+
+write.csv(cat.samples, file = "Processed Cation Data")
+write.csv(an.samples, file = "Processed Anion Data")
+```
+
+# Calculating Precision
+
+To calculate precision, I analyze duplicate samples in the run. To do so, I use the following equation
+
+$$
+ s = \sqrt{\sum(d^2)/2n}
+$$
+
+Where d is the difference between measured values of each ion in a duplicate pair and n is the number of duplicated pairs.
+
+```{r}
+library(dplyr)
+
+#cations
+
+#find duplicates and their proceeding sample
+catdupidx <- grep("DUPLICATE", cat.samples$Info.1) #index duplicates
+catdupidx2<-catdupidx-1 #index file before duplicate 
+catdupfin<-sort(c(catdupidx,catdupidx2)) #add both together and put in order
+
+#clean data to just have duplciated samples 
+catdups<-cat.samples[catdupfin,] #pull just duplicates and their proceeding values out
+catdups[catdups == "<LOD"] <- NA #remove LOD string and replace with NA
+catdups[catdups == "NA"]<- NA
+
+#find standard deviation of duplicates
+makeodd<-seq_len(nrow(catdups)) %% 2 #make an alternating 0,1 vector to pull correct differences 
+catstd<-matrix(nrow = 1, ncol=length(DL.cat))
+colnames(catstd)<-cat.names
+for (i in 1:length(DL.cat)){
+  catdiff<-abs(diff(as.numeric(catdups[,i+3])))[makeodd == 1] #difference between rows, just saving the pairs of the same samples. 
+catstd[i] <- sum(catdiff^2)/(2*(length(catdups)/2))
+}
+
+#anions
+#find duplicates and their proceeding sample
+andupidx <- grep("DUPLICATE", an.samples$Info.1) #index duplicates
+andupidx2<-andupidx-1 #index file before duplicate 
+andupfin<-sort(c(andupidx,andupidx2)) #add both together and put in order
+
+#clean data to just have duplciated samples 
+andups<-an.samples[andupfin,] #pull just duplicates and their proceeding values out
+andups[andups == "<LOD"] <- NA #remove LOD string and replace with NA
+andups[andups == "NA"]<- NA
+
+#find standard deviation of duplicates
+makeodd<-seq_len(nrow(andups)) %% 2 #make an alternating 0,1 vector to pull correct differences 
+anstd<-matrix(nrow = 1, ncol=length(DL.an))
+colnames(anstd)<-an.names
+for (i in 1:length(DL.an)){
+  andiff<-abs(diff(as.numeric(andups[,i+3])))[makeodd == 1] #difference between rows, just saving the pairs of the same samples. 
+anstd[i] <- sum(andiff^2)/(2*(length(andups)/2))
+}
+
+((catstd))
+((anstd))
+
+```
