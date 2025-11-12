@@ -489,12 +489,12 @@ for (k in 1:length(lm.cat)){
 #reprocess data
 #for anions
 for (y in 1:length(DL.an)){
-  an.clean[[y+4]][an.clean[[y+4]] < DL.an[y]] <- -9999    #inserts -9999 if any samples are below DL
+  an.clean[[y+3]][an.clean[[y+3]] < DL.an[y]] <- -9999    #inserts -9999 if any samples are below DL
 }
 
 #for cations
 for (x in 1:length(DL.cat))
-  cat.clean[[x+4]][cat.clean[[x+4]] < DL.cat[x]] <- -9999    #inserts -9999 if any samples are below DL
+  cat.clean[[x+3]][cat.clean[[x+3]] < DL.cat[x]] <- -9999    #inserts -9999 if any samples are below DL
 
 
 #repeating DL columns for output
