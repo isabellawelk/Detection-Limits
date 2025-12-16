@@ -11,21 +11,25 @@
 #  m = slope of calibration curve
 #  residuals = difference in observed results from linear model
 
+### IF YOU GET THE ERROR "SUBSCRIPT OUT OF BOUNDS"
+## you may need to change the [row,column] for the location of 'NOx' etc. in the section read channel for proper labeling 
+# This is located around lines 90
+
 rm(list=ls()) #clear previous variables
 
 #### INPUT information to set up script and load data: ####
 
 setwd("/Users/isabellawelk/Documents/GitHub/Detection-Limits/") #copy file path
 list.files()
-data <- read.csv("NARunData/IW_NOx_PO4_NH3_15Aug24.csv", row.names=NULL) #file name for input data (must be .csv format)
+data <- read.csv("251003A_Wapiti_Zoe_NO3 Tracer.csv", row.names=NULL) #file name for input data (must be .csv format)
 
-numchan<- 3                # INPUT number of channels 
-NOx<-c("Bot-M_A","SC-BF1_B")  #INPUT sample number range for NOx, PO4, & NH3
-PO4<-c("Bot-M_A","SC-BF1_B")
-NH3<-c("Bot-M_A","SC-BF1_B")
+numchan<- 1                # INPUT number of channels 
+NOx<-c("SH10","SH UP 2")  #INPUT sample number range for NOx, PO4, & NH3
+PO4<-c()
+NH3<-c()
 SiO2<-c()
 
-samp_range <- c("Bot-M_A","SC-BF1_B")  #INPUT FIRST AND LAST SAMPLE NUMBERS
+samp_range <- c("SH10","SH UP 2")  #INPUT FIRST AND LAST SAMPLE NUMBERS
 
 #####load necessary packages
 
@@ -86,7 +90,7 @@ for (i in 1:numchan){
 #####read the channel from data for proper labeling 
 
 if (numchan == 1){
-  colnames(DL)<-c(data[8,5])
+  colnames(DL)<-c(data[8,2])
 } else {
   if (numchan == 2){
     colnames(DL)<-c(data[8,5],data[8,9])
@@ -176,9 +180,8 @@ if (length(SiO2) > 0) {
   #full_output <- cbind(selected_data_SiO2, std_SiO2) # doesnt work 
 }
 
-colnames(full_output) <- c("Sample","NOx Conc.","NOx STD","NOx DL","PO4 Conc.","PO4 STD","PO4 DL",
-                           "NH3 Conc.","NH3 STD","NH3 DL")
-write.csv(full_output,"/Users/isabellawelk/Documents/GitHub/Detection-Limits/NARunData/Output/NNP_15Aug24_Output.csv", row.names = FALSE)
+colnames(full_output) <- c("Sample","NOx Conc.","NOx STD","NOx DL")
+write.csv(full_output,"/Users/isabellawelk/Documents/GitHub/Detection-Limits/251003A_Wapiti_Zoe_NO3 Tracer_Processed.csv", row.names = FALSE)
 
 #colnames(std_SiO2) <- c("Sample", "SiO2 Conc", "SiO2 STD", "SiO2 DL")
 #write.csv(std_SiO2,"/Users/isabellawelk/Documents/GitHub/Detection-Limits/NARunData/Output/SiO2_16Aug24_Output.csv")

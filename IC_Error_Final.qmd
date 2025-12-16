@@ -28,7 +28,7 @@ Immediately upon running this code, processed output data files should be upload
 rm(list = ls())
 
 ##set working directory -- Where your copy of the code is stored locally
-setwd("/Users/isabellawelk/Documents/GitHub/Detection-Limits copy") 
+setwd("/Users/isabellawelk/Documents/GitHub/Detection-Limits") 
 list.files()
 
 #load libraries 
@@ -52,10 +52,10 @@ All data files should be stored in the Bergstrom Watershed Biogeochemistry Lab s
 **Define your file names** - These should exactly match what the raw data file is called, and will then be used to name the final exported file.
 
 ```{r}
-anion_file <- "Wapiti_13Oct25_Anions.csv" 
+anion_file <- "Wapiti_tracer4_21Nov25.csv" 
 cation_file <- "Wapiti_13Oct25_Cations.csv"
 
-an_cal_file <- "An_Calibration_13Oct25.csv" 
+an_cal_file <- "An_Calibration_11Nov25.csv" 
 cat_cal_file <- "Cat_Calibration_13Oct25.csv"
 ```
 
@@ -131,6 +131,7 @@ cat_calibration <- replace(cat_calibration, cat_calibration == 'invalid', NA)
 
 #remove '-duplicate' from any sample names
 an.clean$Ident <- gsub("-duplicate", "", as.character(an.clean$Ident))
+an.clean$Ident <- gsub("- duplicate", "", as.character(an.clean$Ident))
 an.clean$Ident <- gsub("-Duplicate", "", as.character(an.clean$Ident))
 an.clean$Ident <- gsub("-DUPLICATE", "", as.character(an.clean$Ident))
 an.clean$Ident <- gsub(" DUPLICATE", "", as.character(an.clean$Ident))
